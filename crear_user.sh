@@ -4,9 +4,8 @@ function usage(){
     echo
     echo "has de ser root"
     echo "l'usari no és pot reptir"
-    exit 1
+    exit 1 #indica que hi ha hagut un errada
 }
-
 
 #Script per crear un usari
 
@@ -16,8 +15,32 @@ then
     usage
 fi
 
+read -p "Introdueix el nom complet: " COMMENTS
+#demanam l nom de l'usuari
 read -p "Introduix el d'usuari: " USER_NAME
+#demana el password
+read -p "Introdueix el password: " PASSWORD
 
 
+#crearíem l'usuari
+useradd -m -c "${COMMENTS}" ${USER_NAME} &> /dev/null
+#control de la darrera comanda
+if [[ ${?} -ne 0 ]]
+then
+    echo "Errada creat l'usuari"
+    exit 1
+fi
 
-echo "creant l'usauri ${USER_NAME}"
+#canvi de password
+echo "${USER_NAME}:${PASSWORD}" | chpasswd
+#comprovam sí el canvi de password ha anat bé.
+if [[ ${?} -ne 0 ]]
+then
+    echo "Errada Canviat password"
+    exit 1
+fi
+
+#fer el caducar el password
+passwd -e ${USER_NAME}
+
+exit 0
